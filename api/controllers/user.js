@@ -247,18 +247,37 @@ function updateUser(req, res){
         return res.status(500).send({
             message: 'no tienes permiso para actualizar ese usuario'
         })
-    }
-    User.findByIdAndUpdate(userId, update, {new: true}, (err, userUpdated)=>{
-        if(err) return res.status(500).send({
-            message: 'no tienes permiso para actualizar ese usuario'
+    };
+
+    
+        
+    User.find({ $or: [
+        {email: update.email},
+        {nick: update.nick}
+    ]}).exec((err, users) => {
+
+        var userIsset = false;
+        users.forEach((user) =>{
+            if(user && user._id != userId) userIsset = true;
+        });
+
+        if(userIsset) return res.status(404).send({message: 'Los datos ya estan en uso'});
+        
+        User.findByIdAndUpdate(userId, update, {new: true}, (err, userUpdated)=>{
+            if(err) return res.status(500).send({
+                message: 'no tienes permiso para actualizar ese usuario'
+            })
+             if(!userUpdated) return res.status(404).send({
+                 message: 'no sea podido actualizar el usuario'
+            }) 
+            return res.status(200).send({
+                user: userUpdated
+            })
         })
-         if(!userUpdated) return res.status(404).send({
-             message: 'no sea podido actualizar el usuario'
-        }) 
-        return res.status(200).send({
-            user: userUpdated
-        })
+
     })
+    
+    
 }
 
 // subir archivo de imagen

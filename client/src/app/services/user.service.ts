@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { User } from '../models/user';
 import { Global } from './global';
@@ -44,7 +44,7 @@ export class UserService{
         }else{
             this.identity = null
         }
-        return this.identity;
+        return  this.identity;
     }
 
     getToken(){
@@ -80,7 +80,8 @@ export class UserService{
     }    
     
     updateUser(user: User): Observable<any>{
-        let params = JSON.stringify(user);
+        const params = new HttpParams()
+        .set('user', JSON.stringify(user));
         let headers = new HttpHeaders().set('Content-Type', "application/jsom")
                                        .set('Authorization', this.getToken());
         

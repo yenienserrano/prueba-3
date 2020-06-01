@@ -10,7 +10,7 @@ import { UserService } from '../../services/user.service';
 })
 export class UserEditComponent implements OnInit {
   public title: string;
-  public user;
+  public user: User;
   public identity;
   public token;
   public status;
@@ -21,7 +21,7 @@ export class UserEditComponent implements OnInit {
     private _router : Router
   ) {
     this.title = 'Actualizar mis datos';
-    this.user =  this._userService.getIdentity();
+    this.user =  JSON.parse(this._userService.getIdentity());
     this.identity = this.user;
     this.token = this._userService.getToken();
    }
