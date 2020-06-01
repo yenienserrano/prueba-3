@@ -38,6 +38,13 @@
                 El email es obligatorio
             </span>
         </p>
+        <div *ngIf="user.image">
+            <img src="{{this.url+'get-image-user/'+user.image}}" style="width: 70px;">
+        </div>
+        <p>
+            <label for="image">Foto de perfil</label>
+            <input type="file" placeholder="Subir imagen" name="image" (change)="fileChangeEvent($event)">
+        </p>
 
         <input type="submit" value="{{title}}" class="btn btn-warning" [disabled]="!userEditForm.form.valid">
     </form>
