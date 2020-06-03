@@ -172,29 +172,27 @@ function getUsers(req, res){
 }
 
 async function followUserIds(user_id){
-    var following = await Follow.find({'user':user_id}).select({'_id':0, '__v':0, 'user':0}).exec((err, follows)=> {
-        var followsClean = [];
+    var following = await Follow.find({'user':user_id}).select({'_id':0, '__v':0, 'user':0})
 
-        follows.forEach((follow)=>{
-            followsClean.push(follow.followed);
+    var followed = await Follow.find({'followed':user_id}).select({'_id':0, '__v':0, 'followed':0})
+
+        var followingClean = [];
+
+        following.forEach((follow)=>{
+            followingClean.push(follow.followed);
         });
 
-       return followsClean;
-    });
 
-    var followed = await Follow.find({'followed':user_id}).select({'_id':0, '__v':0, 'followed':0}).exec((err, follows)=> {
         var followedClean = [];
 
-        follows.forEach((follow)=>{
-            followsClean.push(follow.user);
-        });
-
-        return followedClean;
+        followed.forEach((follow)=>{
+            followedClean.push(follow.user);
+               
     });
 
     return {
-        following: following,
-        followed: followed
+        following: followingClean,
+        followed: followedClean
     }
 
 }
