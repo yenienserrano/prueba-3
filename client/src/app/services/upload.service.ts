@@ -10,7 +10,7 @@ export class UploadService {
         this.url = Global.url;
     }
 
-    makeFileRequest(url: string, params: Array<string>, files:Array<File>,token:string,name: string){
+    makeFileRequest(url: string, params: Array<string>, files: Array<File>, token: string, name: string){
         return new Promise((resolve, reject) => {
             var formData: any = new FormData();
             var xhr = new XMLHttpRequest();
@@ -28,7 +28,7 @@ export class UploadService {
                     }
                 }
             }
-            xhr.open('POST', url, true);
+            xhr.open('POST', 'http://localhost:3800'+ url, true);
             xhr.setRequestHeader('Authorization', token);
             xhr.send(formData);
         })

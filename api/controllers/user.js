@@ -124,9 +124,6 @@ function getUser(req, res){
             return res.status(200).send({user, follow})
         })
 
-        return res.status(200).send({
-            user
-        })
     })
 }
 
@@ -156,7 +153,7 @@ function getUsers(req, res){
 
     var itemsPerPage = 5;
 
-    User.find().sort('_id').paginate(page, itemsPerPage, (err, users,total)=>{
+    User.find().sort('_id').paginate(page, itemsPerPage, (err, users, total)=>{
         if(err) return res.status(500).send({message: 'error en la peticion'})
 
         if(!users) return res.status(404).send({message: 'no hay usuarios disponibles'})
@@ -167,7 +164,7 @@ function getUsers(req, res){
                 usersFollowing: value.following,
                 usersFollowMe: value.followed,
                 total,
-                page: Math.ceil(total/itemsPerPage)
+                pages: Math.ceil(total/itemsPerPage)
             })
         })
         
@@ -176,28 +173,28 @@ function getUsers(req, res){
 
 async function followUserIds(user_id){
     var following = await Follow.find({'user':user_id}).select({'_id':0, '__v':0, 'user':0}).exec((err, follows)=> {
-       return follows;
+        var followsClean = [];
+
+        follows.forEach((follow)=>{
+            followsClean.push(follow.followed);
+        });
+
+       return followsClean;
     });
 
-    var following = await Follow.find({'followed':user_id}).select({'_id':0, '__v':0, 'followed':0}).exec((err, follows)=> {
-        return follows;
-    });
+    var followed = await Follow.find({'followed':user_id}).select({'_id':0, '__v':0, 'followed':0}).exec((err, follows)=> {
+        var followedClean = [];
 
-    var followingClean = [];
+        follows.forEach((follow)=>{
+            followsClean.push(follow.user);
+        });
 
-    follows.forEach((follow)=>{
-        followingClean.push(follow.followed);
+        return followedClean;
     });
-    var followedClean = [];
-
-    follows.forEach((follow)=>{
-        followedClean.push(follow.user);
-    });
-        
 
     return {
-        following: followingClean,
-        followed: followedClean
+        following: following,
+        followed: followed
     }
 
 }

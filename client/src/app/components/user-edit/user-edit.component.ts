@@ -14,7 +14,7 @@ import { Global } from '../../services/global';
 export class UserEditComponent implements OnInit {
   public url;
   public title: string;
-  public user;
+  public user: User;
   public identity;
   public token;
   public status;
@@ -26,14 +26,13 @@ export class UserEditComponent implements OnInit {
     private _router : Router
   ) {
     this.title = 'Actualizar mis datos';
-    this.user = this._userService.getIdentity();
+    this.user = JSON.parse(JSON.stringify( this._userService.getIdentity()));
     this.identity = this.user;
     this.token = this._userService.getToken();
     this.url = Global.url;
    }
 
   ngOnInit(): void {
-    console.log(this.identity)
   }
 
   onSubmit(){
