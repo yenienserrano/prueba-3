@@ -28,7 +28,7 @@ export class UploadService {
                     }
                 }
             }
-            xhr.open('POST', 'http://localhost:3800'+ url, true);
+            xhr.open('POST', 'http://localhost:3800' + url, true);
             xhr.setRequestHeader('Authorization', token);
             xhr.send(formData);
         })

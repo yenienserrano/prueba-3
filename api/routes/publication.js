@@ -7,10 +7,11 @@ var mdUpload = multipart({uploadDir: './uploads/publication'});
 
 api.post('/publication', mdAuth.ensureAuth, PublicationControllers.savePublication);
 api.get('/publications/:page?',mdAuth.ensureAuth, PublicationControllers.getPublications);
+api.get('/publications-user/:user/:page?',mdAuth.ensureAuth, PublicationControllers.getPublicationsUser);
 api.get('/publication/:id',mdAuth.ensureAuth, PublicationControllers.getPublication);
 api.delete('/publication/:id',mdAuth.ensureAuth, PublicationControllers.deletePublication);
 api.post('/upload-image-pub/:id', [mdAuth.ensureAuth, mdUpload], PublicationControllers.uploadImage);
-api.post('/upload-image-pub/:imageFile', mdAuth.ensureAuth, PublicationControllers.getImageFile);
+api.get('/get-image-pub/:imageFile', PublicationControllers.getImageFile);
 
 
 module.exports = api;

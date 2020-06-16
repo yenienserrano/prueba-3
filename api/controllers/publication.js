@@ -42,6 +42,46 @@ function savePublication(req, res){
     })
 }
 
+function getPublicationsUser(req, res){
+    var page = 1;
+
+    if(req.params.page){
+        page = req.params.page;
+    }
+    var user = req.user.sub;
+    if(req.params.user){
+        var user = req.params.user;
+    }
+
+    var itemsPrePage = 4;
+
+    Publication.find({user: user,}).sort('-createdAt').populate('user').paginate(page, itemsPrePage, (err, publications, total) => {
+
+        if(err){
+            return res.status(500).send({
+                message: 'error al devolver publicaciones'
+            })
+        }
+        if(!publications){
+            return res.status(404).send({
+                message: 'no hay publicaciones'
+            })
+        }
+        
+        res.status(200).send({
+            totalItems : total,
+            pages: Math.ceil(total/itemsPrePage),
+            page: page,
+            itemsPrePage: itemsPrePage,
+            publications
+        })
+        
+        
+    })
+}        
+    
+
+
 function getPublications(req, res){
     var page = 1;
 
@@ -51,19 +91,25 @@ function getPublications(req, res){
 
     var itemsPrePage = 4;
 
+    
+
     Follow.find({user: req.user.sub}).populate('followed').exec((err, follows) => {
         if(err){
             return res.status(500).send({
                 message: 'error al volver seguimientos'
             })
         }
+        
         var followsClean = [];
 
         follows.forEach((follow) => {
-            followsClean.push(follows.followed)
+            followsClean.push(follow.followed)
         })
 
-        Publication.find({user: {'$in': followsClean}}).sort('-createdAt').populate('user').paginate(page, itemsPrePage, (err, publications, total) => {
+        followsClean.push(req.user.sub)
+
+        Publication.find({user: {"$in": followsClean}}).sort('-createdAt').populate('user').paginate(page, itemsPrePage, (err, publications, total) => {
+
             if(err){
                 return res.status(500).send({
                     message: 'error al devolver publicaciones'
@@ -74,13 +120,18 @@ function getPublications(req, res){
                     message: 'no hay publicaciones'
                 })
             }
-            return res.status(200).send({
+            
+            res.status(200).send({
                 totalItems : total,
                 pages: Math.ceil(total/itemsPrePage),
                 page: page,
+                itemsPrePage: itemsPrePage,
                 publications
             })
+            console.log(followsClean)
+            
         })
+        
     })
 }
 
@@ -111,17 +162,13 @@ function deletePublication(req, res){
                 message: 'error al borrar publicaciones'
             })
         }
-        if(!publication){
-            return res.status(404).send({
-                message: 'no se a borrado la publicacion'
-            })
-        }
+    
         return res.status(200).send({message: 'publicacion eliminada'})
     })
 }
 
 function uploadImage(req, res){
-    var userId = req.params.id;
+    var publicationId = req.params.id;
     
    
     if(req.files){
@@ -131,12 +178,17 @@ function uploadImage(req, res){
         var extSplit = fileName.split('\.');
         var fileExt = extSplit[1];
 
+        if(userId != req.user.sub){
+            return removeFilesOfUploads(res, filePath, 'no tienes permiso para actualizar ese usuario')
+        }
+        
         if(fileExt == 'png' || fileExt == 'jpg' || fileExt == 'jpeg' || fileExt == 'gif'){
-            Publication.findOne({"user": req.user.sub , '_id':publicationId}).exec((err, publication) => {
+            Publication.findOne({"user": req.user.sub , "_id":publicationId}).exec((err, publication) => {
                 if(publication){
             //actualizar documento de la publicacion
                    
                     Publication.findByIdAndUpdate(publicationId, {file: fileName}, {new:true},(err, publicationUpdated)=>{
+                        
                         if(err) return res.status(500).send({
                             message: 'no tienes permiso para actualizar ese usuario'
                         })
@@ -186,6 +238,7 @@ function getImageFile(req, res){
 module.exports = {
     savePublication, 
     getPublications,
+    getPublicationsUser,
     getPublication,
     deletePublication,
     uploadImage,

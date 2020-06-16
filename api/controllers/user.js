@@ -121,24 +121,40 @@ function getUser(req, res){
                 })
             }
             
-            return res.status(200).send({user, follow})
+            followThisUser(req.user.sub, userId).then(value => {
+                user.password = undefined;
+                console.log(req.user.sub)
+                console.log(userId)
+                console.log(value)
+            return res.status(200).send({
+                user,
+                following: value.following,
+                followed: value.followed
+            })
+
+            })
+
         })
 
     })
 }
 
 async function followThisUser(identityUserId, userId){
-    var following = await Follow.findOne({'user':identityUserId, 'followed':userId}).exec((err,follow)=>{
-        if(err) return handleError(err);
+    var following = await Follow.findOne({'user':identityUserId, 'followed':userId}).exec().then(follow => {
         return follow;
-    })
-    var followed = await Follow.findOne({'user':userId, 'followed':identityUserId}).exec((err,follow)=>{
+    }).catch(err=>{
         if(err) return handleError(err);
-        return follow;
     })
-    return{
-        following: following,
-        followed: followed
+    
+    var followed = await Follow.findOne({'user':userId, 'followed':identityUserId}).exec().then(follow=>{
+        return follow;
+    }).catch(err =>{
+        if(err) return handleError(err);   
+    })
+
+    return  {
+    following: following,
+    followed: followed
     }
 }
 
@@ -202,25 +218,20 @@ function getCounters(req, res){
     if(req.params.id){
         userId = req.params.id;  
     }
-    getCountFollow(req.params.id).then((value)=>{
+    getCountFollow(userId).then((value)=>{
         return res.status(200).send(value)
     })
+    
     
 }
 
 async function getCountFollow(userId){
-    var following = await Follow.count({'user': userId}).exec((err,count)=>{
-        if(err) return handleError(err)
-        return count;
-    })
-    var followed = await Follow.count({'followed':userId}).exec((err, count)=>{
-        if(err) return handleError(err)
-        return count;
-    })
-    var publications = await Publication.count({'user': userId}).exec((err, count)=>{
-        if(err) return handleError(err);
-        return count;
-    })
+    var following = await Follow.count({"user": userId}) 
+    
+    console.log(following)
+    var followed = await Follow.count({"followed":userId})
+
+    var publications = await Publication.count({"user": userId})
 
     return {
         following: following,
@@ -301,6 +312,7 @@ function updateImage(req, res){
                  if(!userUpdated) return res.status(404).send({
                      message: 'no sea podido actualizar el usuario'
                 }) 
+                
                 return res.status(200).send({
                     user: userUpdated
                 })

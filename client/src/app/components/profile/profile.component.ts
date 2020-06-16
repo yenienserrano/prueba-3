@@ -1,72 +1,107 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { User } from '../../models/user';
-import { UserService } from '../../services/user.service';
-import { Global } from '../../services/global';
-import { FollowsService } from '../../services/follows.service';
 import { Follow } from '../../models/follow';
+import { UserService } from '../../services/user.service';
+import { FollowsService } from '../../services/follows.service';
+import { Global } from '../../services/global';
+
 
 @Component({
-  selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css'],
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css'],
   providers: [UserService, FollowsService]
 })
-export class UsersComponent implements OnInit {
-  public url: string;
-  public title: String;
-  public identity;
-  public token;
-  public page;
-  public prevPage;
-  public nextPage;
-  public status;
-  public total;
-  public pages;
-  public follows;
-  public users: User[];
-
+export class ProfileComponent implements OnInit {
+  title: string;
+  user: User;
+  status:string;
+  identity;
+  token;
+  url;
+  stats;
+  followed;
+  following;
+  follows;
 
   constructor(
-    private _router: Router,
     private _route: ActivatedRoute,
+    private _router: Router,
     private _userService: UserService,
     private _followService: FollowsService
-  ) { 
-    this.url = Global.url;
-    this.title = "Gente";
+  ) {
+    this.title = 'Perfil';
     this.identity = this._userService.getIdentity();
     this.token = this._userService.getToken();
-  }
+    this.url = Global.url;
+    this.following = false;
+    this.followed = false;
+   }
 
   ngOnInit(): void {
-    this.actualPage();
+    this.loadPage();
+    this.getUsers(1)
   }
 
-  actualPage(){
+  loadPage(){
     this._route.params.subscribe(params => {
-      let page = +params['page'];
-      this.page = page;
+      let id = params['id'];
 
-      if(!+params['page']){
-        page = 1;
-      }
-
-      if(!page){
-        page = 1;
-      }else{
-        this.nextPage = page + 1;
-        this.prevPage = page - 1;
-
-        if(this.prevPage <= 0){
-          this.prevPage = 1;
-        }
-      }
-
-      // devolver listado de usuarios
-
-      this.getUsers(page)
+      this.getUser(id);
+      this.getCounters(id);
     })
+  }
+
+  getUser(id){
+    this._userService.getUser(id).subscribe(
+      response=> {
+        if(response.user){
+          this.user = response.user;
+          console.log(response)
+          if(response.followed && response.following._id){
+            this.followed = true;
+          }else{
+            this.followed = false; 
+          }
+
+          if(response.following && response.following._id){
+            this.following = true;
+          }else{
+            this.following = false; 
+          }
+
+        }else{
+          this.status = 'error'
+        }
+      },
+      error=>{
+        console.log(<any>error)
+        this._router.navigate(['/perfile',this.identity._id])
+      }
+    )
+  }
+
+  getCounters(id){
+    this._userService.getCounters(id).subscribe(
+      response => {
+        this.stats = response;
+        console.log(response)
+      },
+      error => {
+        console.log(<any>error)
+      }
+    )
+  }
+
+  public followUserOver;
+
+  mouseEnter(userId){
+    this.followUserOver = userId;
+  }
+
+  mouseLeave(){
+    this.followUserOver = 0;
   }
 
   getUsers(page){
@@ -75,13 +110,7 @@ export class UsersComponent implements OnInit {
         if(!response.users){
           this.status = 'error'
         }else{
-          this.total = response.total;
-          this.users = response.users;
-          this.pages = response.pages;
           this.follows = response.usersFollowing;
-          if(page > this.pages){
-            this._router.navigate(['gente', 1])
-          }
         }
       },
       error => {
@@ -93,14 +122,6 @@ export class UsersComponent implements OnInit {
         }
       }
     )
-  }
-
-  public followUserOver;
-  mouseEnter(user_id){
-    this.followUserOver = user_id
-  }
-  mouseLeave(user_id){
-    this.followUserOver = null
   }
 
   followUser(followed){
@@ -144,5 +165,7 @@ export class UsersComponent implements OnInit {
       }
     )
   }
+
+  
 
 }

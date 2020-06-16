@@ -10,6 +10,7 @@ export class UserService{
     public url: string;
     public identity:string;
     public token: string;
+    public stats;
     
 
     constructor(
@@ -62,18 +63,18 @@ export class UserService{
         let stats = JSON.parse(localStorage.getItem('stats'));
 
         if(stats != "undefined"){
-            stats = stats;
+            this.stats = stats;
         }else{
-            stats = null
+            this.stats = null
         }
-        return stats
+        return this.stats
     }
 
     getCounters(userId = null): Observable<any>{
         var headers = new HttpHeaders().set('Content-Type', "application/json")
                                        .set('Authorization', this.getToken());
         if(userId != null){
-            return this._http.get(this.url+"counters/"+userId, {headers: headers})
+            return this._http.get(this.url+"counters/" + userId, {headers: headers})
         }else{
             return this._http.get(this.url+"counters", {headers: headers})
         }                                        

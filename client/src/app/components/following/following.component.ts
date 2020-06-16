@@ -7,12 +7,14 @@ import { FollowsService } from '../../services/follows.service';
 import { Follow } from '../../models/follow';
 
 @Component({
-  selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css'],
+  selector: 'app-following',
+  templateUrl: './following.component.html',
+  styleUrls: ['./following.component.css'],
   providers: [UserService, FollowsService]
+
 })
-export class UsersComponent implements OnInit {
+export class FollowingComponent implements OnInit {
+
   public url: string;
   public title: String;
   public identity;
@@ -24,7 +26,9 @@ export class UsersComponent implements OnInit {
   public total;
   public pages;
   public follows;
+  public following;
   public users: User[];
+  public userPageId;
 
 
   constructor(
@@ -34,7 +38,7 @@ export class UsersComponent implements OnInit {
     private _followService: FollowsService
   ) { 
     this.url = Global.url;
-    this.title = "Gente";
+    this.title = "Usuarios seguidos por ";
     this.identity = this._userService.getIdentity();
     this.token = this._userService.getToken();
   }
@@ -45,6 +49,9 @@ export class UsersComponent implements OnInit {
 
   actualPage(){
     this._route.params.subscribe(params => {
+
+      let userId = params['id'];
+      this.userPageId = userId;
       let page = +params['page'];
       this.page = page;
 
@@ -65,18 +72,19 @@ export class UsersComponent implements OnInit {
 
       // devolver listado de usuarios
 
-      this.getUsers(page)
+      this.getFollows(userId, page)
     })
   }
 
-  getUsers(page){
-    this._userService.getUsers(page).subscribe(
+  getFollows(userId, page){
+    this._followService.getFollowing(this.token, userId,page).subscribe(
       response => {
-        if(!response.users){
+        if(!response.follows){
           this.status = 'error'
         }else{
+          console.log(response)
           this.total = response.total;
-          this.users = response.users;
+          this.following = response.follows;
           this.pages = response.pages;
           this.follows = response.usersFollowing;
           if(page > this.pages){
@@ -144,5 +152,6 @@ export class UsersComponent implements OnInit {
       }
     )
   }
+
 
 }
