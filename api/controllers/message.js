@@ -18,7 +18,7 @@ function saveMessage(req, res){
     message.emitter = req.user.sub;
     message.receiver = params.receiver;
     message.text = params.text;
-    message.createdAt = moment().unix();
+    message.created_at = moment().unix();
     message.viewed = 'false';
 
     message.save((err, messageStored) => {
@@ -42,11 +42,11 @@ function getReceivedMessages(req, res){
 
     var itemsPrePage = 4;
 
-    Message.find({receiver: userId}).populate('emitter', 'name surname _id nick image').paginate(page, itemsPrePage, (err, message, total) => {
+    Message.find({receiver: userId}).populate('emitter', 'name surname _id nick created_at image').sort('created_at').paginate(page, itemsPrePage, (err, messages, total) => {
         if(err){
             return res.status(500).send({message: 'error en la peticion'})
         }
-        if(!message){
+        if(!messages){
             return res.status(404).send({message: 'no hay mensajes que mostrar'})
         }
         return res.status(200).send({
@@ -68,11 +68,11 @@ function getEmittMessages(req, res){
 
     var itemsPrePage = 4;
 
-    Message.find({emitter: userId}).populate('emitter receiver', 'name surname _id nick image').paginate(page, itemsPrePage, (err, message, total) => {
+    Message.find({emitter: userId}).populate('emitter receiver', 'name surname _id nick image').sort('created_at').paginate(page, itemsPrePage, (err, messages, total) => {
         if(err){
             return res.status(500).send({message: 'error en la peticion'})
         }
-        if(!message){
+        if(!messages){
             return res.status(404).send({message: 'no hay mensajes que mostrar'})
         }
         return res.status(200).send({

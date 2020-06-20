@@ -1,0 +1,23 @@
+<div class="col-lg-4">
+    <h3>{{title}}</h3>
+    <div class="sidebar-admin">
+        <ul class="nav nav-pills nav-stacked nav-pills-stacked-example">
+            <li role="presentation">
+                <a [routerLink]="['enviar']" [routerLinkActive]="['active1']">Enviar mensaje</a>
+            </li>
+            <li role="presentation">
+                <a [routerLink]="['recibidos']" [routerLinkActive]="['active1']">Mensajes recibidos</a>
+            </li>
+            <li role="presentation">
+                <a [routerLink]="['enviados']" [routerLinkActive]="['active1']">Mensajes enviados</a>
+            </li>
+            <li role="presentation">
+                <a [routerLink]="['/home']" [routerLinkActive]="['active1']">Informacion</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="col-lg-8">
+    <router-outlet></router-outlet>
+</div>

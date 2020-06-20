@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MomentModule } from 'angular2-moment';
 
+// modulo custom
+import { MessagesModule } from './messages/messages.module';
+
+// components
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
@@ -16,6 +20,12 @@ import { TimelineComponent } from './components/timeline/timeline.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { PublicationComponent } from './components/publication/publication.component';
 import { FollowingComponent } from './components/following/following.component';
+import { FollowedComponent } from './components/followed/followed.component';
+
+
+// servicios
+import { UserService } from './services/user.service';
+import { UserGuard } from './services/user.guard';
 
 
 @NgModule({
@@ -30,16 +40,21 @@ import { FollowingComponent } from './components/following/following.component';
     TimelineComponent,
     ProfileComponent,
     PublicationComponent,
-    FollowingComponent
+    FollowingComponent,
+    FollowedComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    MomentModule
+    MomentModule,
+    MessagesModule
   ],
-  providers: [],
+  providers: [
+    UserService,
+    UserGuard
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
