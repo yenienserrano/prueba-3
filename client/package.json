@@ -21,7 +21,7 @@
     "@angular/router": "~9.1.4",
     "angular2-moment": "^1.9.0",
     "bootstrap": "^3.4.1",
-    "jquery": "^1.12.4",
+    "jquery": "^3.5.0",
     "ng-bootstrap-to-bootstrap-3": "^0.7.0",
     "popper.js": "^1.16.1",
     "rxjs": "~6.5.4",
